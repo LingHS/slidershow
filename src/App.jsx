@@ -1,32 +1,54 @@
-import React, { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const imgs = [
+  "https://img.ivsky.com/img/tupian/pre/202003/18/xingkong-005.jpg",
+  "https://img.ivsky.com/img/tupian/pre/202003/18/xingkong-007.jpg",
+  "https://img.ivsky.com/img/tupian/pre/202003/18/xingkong-008.jpg",
+];
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button onClick={() => setCount(count => count + 1)}>count is: {count}</button>
-        </p>
-        <p>
-          Edit <code>App.jsx</code> and save to test HMR updates.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  )
+function useInterval(cb, interval) {
+  useEffect(() => {
+    const start = new Date().getTime();
+    const I = setInterval(() => {
+      cb(new Date().getTime() - start);
+    }, interval);
+    return () => clearInterval(I);
+  }, []);
 }
 
-export default App
+function useSlider(N, speed = 1000) {
+  const [slider, setSlider] = useState(0);
+  useInterval((diff) => {
+    setSlider(() => Math.floor(diff / speed) % N);
+  }, speed);
+  return slider;
+}
+
+function App() {
+  const slider = useSlider(imgs.length);
+
+  return (
+    <div className="scroller">
+      <div
+        className="inner"
+        style={{
+          width: `${imgs.length * 100}%`,
+          transform: `translateX(-${(100 * slider) / imgs.length}%)`,
+        }}
+      >
+        {imgs.map((src) => (
+          <img
+            src={src}
+            key={src}
+            style={{
+              width: `${100 / imgs.length}%`,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default App;
